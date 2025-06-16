@@ -1,0 +1,46 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    container_name: hf-search-db
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: hf_articles
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - local_hf_search
+    healthcheck: # for depends_on:service_healthy
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5 # Number of retries before marking as unhealthy
+
+  mcp:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: hf-search-mcp
+    # command: tail -f /dev/null
+    command: uvicorn app.main:my_app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_DB: hf_articles
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    depends_on:
+      db:
+        condition: service_healthy # Wait until the DB's healthcheck passes
+    restart: unless-stopped
+    networks:
+      - local_hf_search
+
+networks:
+  local_hf_search:
+    name: hf_search_network
+

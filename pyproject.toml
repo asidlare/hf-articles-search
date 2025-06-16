@@ -1,0 +1,74 @@
+[tool.poetry]
+name = "hf-articles-search"
+version = "0.1.0"
+description = ""
+authors = ["Anna Sidlarewicz <asidlare@gmail.com>"]
+
+[tool.poetry.plugins."poetry.application.plugin"]
+export = "poetry_plugin_export.plugins:ExportApplicationPlugin"
+
+[tool.poetry.dependencies]
+python = "3.13.5"
+more-itertools = "*"
+sqlalchemy = {extras = ["asyncio"], version = "*"}
+uvicorn = {extras = ["standard"], version = "*"}
+fastapi = {extras = ["all"], version = "*"}
+fastapi-mcp = "*"
+pydantic = "*"
+asyncpg = "*"
+alembic = "*"
+aiohttp = "*"
+beautifulsoup4 = "*"
+openai = "*"
+numpy = "*"
+pandas = "*"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "*"
+# test
+pytest = "*"
+pytest-asyncio = "*"
+coverage = "*"
+pytest-cov = "*"
+pytest-mimesis = "*"
+pytest-mock = "*"
+pytest-postgresql = "*"
+psycopg = {extras = ["binary"], version = "*"}
+httpx = "*"
+
+[build-system]
+requires = ["poetry-core>=2.1.3"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = "tests"
+python_files = "test_*.py"
+python_functions = "test_*"
+python_classes = "Test* *Tests"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_mode = "auto"
+pythonpath = ["."]
+addopts = [
+  "--strict-markers",
+  "--strict-config",
+  "-ra"
+]
+
+[tool.mypy]
+check_untyped_defs = true
+namespace_packages = true
+plugins = "sqlalchemy.ext.mypy.plugin"
+pretty = true
+show_error_context = true
+exclude = ".venv"
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = [
+  "backoff.*",
+  "opentracing.*",
+]
+ignore_missing_imports = true
