@@ -1,10 +1,12 @@
 import asyncio
 import aiohttp
+import json
 import pandas as pd
 import os
 import time
 from bs4 import BeautifulSoup
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
+from app.transformations.extractor import make_hashed_url
 
 # path to data folder
 DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
@@ -159,7 +161,8 @@ def save_to_jsonl(data: dict, filename):
 
     FILE_PATH = os.path.join(DATA_PATH, filename)
     with open(FILE_PATH, "a", encoding="utf-8") as f:
-        f.write(f"{data}\n")
+        json_str = json.dumps(data, ensure_ascii=False)
+        f.write(f"{json_str}\n")
 
 
 async def fetch_urls(input_file: str, output_file: str = "science_links_content.jsonl") -> None:
@@ -209,6 +212,7 @@ async def fetch_urls(input_file: str, output_file: str = "science_links_content.
             print(f"Starting scraping {len(urls)} URLs with {MAX_CONCURRENT_REQUESTS} concurrent requests.")
             for i, future in enumerate(asyncio.as_completed([limited_task(t) for t in tasks])):
                 result = await future
+                result["link_hash"] = make_hashed_url(result["link"])
                 results += 1
                 if (i + 1) % 50 == 0: # Print progress every 50 URLs
                     print(f"Processed {i + 1}/{len(urls)} URLs.")

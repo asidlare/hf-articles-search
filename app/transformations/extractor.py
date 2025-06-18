@@ -1,3 +1,4 @@
+import hashlib
 import pandas as pd
 import os
 
@@ -29,7 +30,12 @@ def extract_science_category() -> None:
         (data_df["date"] >= "2015-01-01")
     )
     data_science_df = data_df.loc[condition, ["link", "headline", "date"]]
+    data_science_df["link_hash"] = data_science_df["link"].apply(lambda x: make_hashed_url(x))
     data_science_df['date'] = pd.to_datetime(data_science_df['date']).dt.strftime('%Y-%m-%d')
 
     formatted_json = data_science_df.to_json(orient='records', lines=True, date_format="iso").replace('\\/', '/')
     print(formatted_json, file=open(output_file, 'w'))
+
+
+def make_hashed_url(url: str) -> str:
+    return hashlib.shake_256(url.encode("utf-8")).hexdigest(16)
