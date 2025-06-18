@@ -11,6 +11,7 @@ export = "poetry_plugin_export.plugins:ExportApplicationPlugin"
 python = "3.13.5"
 more-itertools = "*"
 sqlalchemy = {extras = ["asyncio"], version = "*"}
+pgvector = "*"
 uvicorn = {extras = ["standard"], version = "*"}
 fastapi = {extras = ["all"], version = "*"}
 fastapi-mcp = "*"

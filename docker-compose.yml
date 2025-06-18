@@ -5,7 +5,8 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: hf_articles
+      POSTGRES_HOST: db:5432
+      POSTGRES_NAME: hf_articles
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -30,7 +31,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      POSTGRES_DB: hf_articles
+      POSTGRES_HOST: db:5432
+      POSTGRES_NAME: hf_articles
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     depends_on:
