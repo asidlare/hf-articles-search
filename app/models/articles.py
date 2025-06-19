@@ -79,7 +79,7 @@ class Tag(Base, TimestampMixin):
     __tablename__ = "tags"
 
     tag_id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    tag: Mapped[str] = mapped_column(VARCHAR(255), unique=True, nullable=False)
+    tag: Mapped[str] = mapped_column(VARCHAR(255), unique=True, nullable=False, index=True)
 
     # Relationship to the association object (one-to-many from Tag to ArticleTag)
     # This represents all article tags in a tag
