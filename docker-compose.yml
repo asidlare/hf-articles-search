@@ -14,7 +14,7 @@ services:
     networks:
       - local_hf_search
     healthcheck: # for depends_on:service_healthy
-      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_NAME" ]
       interval: 5s
       timeout: 5s
       retries: 5 # Number of retries before marking as unhealthy
@@ -31,10 +31,10 @@ services:
     ports:
       - "8000:8000"
     environment:
-      POSTGRES_HOST: db:5432
-      POSTGRES_NAME: hf_articles
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      - POSTGRES_HOST=db:5432
+      - POSTGRES_NAME=hf_articles
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     depends_on:
       db:
         condition: service_healthy # Wait until the DB's healthcheck passes

@@ -1,45 +1,58 @@
-[tool.poetry]
+[project]
 name = "hf-articles-search"
 version = "0.1.0"
 description = ""
-authors = ["Anna Sidlarewicz <asidlare@gmail.com>"]
+authors = [
+    { name = "Anna Sidlarewicz", email = "asidlare@gmail.com" }
+]
+requires-python = ">=3.13.5"
+dependencies = [
+    "more-itertools",
+    "sqlalchemy[asyncio]",
+    "pgvector",
+    "uvicorn[standard]",
+    "fastapi[all]",
+    "fastapi-mcp",
+    "pydantic",
+    "asyncpg",
+    "alembic",
+    "aiohttp",
+    "beautifulsoup4",
+    "openai",
+    "numpy",
+    "pandas",
+]
 
-[tool.poetry.plugins."poetry.application.plugin"]
-export = "poetry_plugin_export.plugins:ExportApplicationPlugin"
-
-[tool.poetry.dependencies]
-python = "3.13.5"
-more-itertools = "*"
-sqlalchemy = {extras = ["asyncio"], version = "*"}
-pgvector = "*"
-uvicorn = {extras = ["standard"], version = "*"}
-fastapi = {extras = ["all"], version = "*"}
-fastapi-mcp = "*"
-pydantic = "*"
-asyncpg = "*"
-alembic = "*"
-aiohttp = "*"
-beautifulsoup4 = "*"
-openai = "*"
-numpy = "*"
-pandas = "*"
-
-[tool.poetry.group.dev.dependencies]
-mypy = "*"
-# test
-pytest = "*"
-pytest-asyncio = "*"
-coverage = "*"
-pytest-cov = "*"
-pytest-mimesis = "*"
-pytest-mock = "*"
-pytest-postgresql = "*"
-psycopg = {extras = ["binary"], version = "*"}
-httpx = "*"
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "pytest",
+    "pytest-asyncio",
+    "coverage",
+    "pytest-cov",
+    "pytest-mimesis",
+    "pytest-mock",
+    "pytest-postgresql",
+    "psycopg[binary]",
+    "httpx",
+    "sentence-transformers",
+]
 
 [build-system]
-requires = ["poetry-core>=2.1.3"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.hatch.build]
+include = [
+    "app/**/*.py",
+    "app/**/*.pyi",
+]
+exclude = [
+    "tests/**",
+]
 
 [tool.pytest.ini_options]
 testpaths = "tests"
@@ -50,9 +63,9 @@ asyncio_default_fixture_loop_scope = "session"
 asyncio_mode = "auto"
 pythonpath = ["."]
 addopts = [
-  "--strict-markers",
-  "--strict-config",
-  "-ra"
+    "--strict-markers",
+    "--strict-config",
+    "-ra"
 ]
 
 [tool.mypy]
@@ -69,7 +82,7 @@ ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = [
-  "backoff.*",
-  "opentracing.*",
+    "backoff.*",
+    "opentraining.*",
 ]
 ignore_missing_imports = true
