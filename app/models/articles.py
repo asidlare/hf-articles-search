@@ -1,14 +1,15 @@
 from datetime import date
+from pgvector.sqlalchemy import VECTOR
 from sqlalchemy.dialects.postgresql import DATE
-from sqlalchemy import BIGINT, VARCHAR, CHAR, ForeignKey, UniqueConstraint, event
+from sqlalchemy import BIGINT, CHAR, ForeignKey, Index, TEXT, UniqueConstraint, VARCHAR, event
 from sqlalchemy.orm import Mapped, Session, mapped_column, relationship
 from typing import Optional
 
-from app.models.utils import AutoEmbeddingMixin, TimestampMixin, generate_embedding
+import app.models.utils as utils
 from app.services.database import Base
 
 
-class ArticleTag(Base, TimestampMixin):
+class ArticleTag(Base, utils.TimestampMixin):
     __tablename__ = 'article_tags'
 
     # Composite primary key consisting of foreign keys
@@ -19,18 +20,18 @@ class ArticleTag(Base, TimestampMixin):
         BIGINT, ForeignKey('tags.tag_id'), primary_key=True
     )
 
-    # Relationships back to the Student and Course models
+    # Relationships back to the Article and Tag models
     # These create the direct links from the association object
-    article: Mapped["Article"] = relationship(back_populates="tags")
-    tag: Mapped["Tag"] = relationship(back_populates="tags")
+    article: Mapped["Article"] = relationship(back_populates="article_tags")
+    tag: Mapped["Tag"] = relationship(back_populates="article_tags")
 
 
-class Article(Base, TimestampMixin):
+class Article(Base, utils.TimestampMixin):
     __tablename__ = "articles"
 
     article_id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    link_hash: Mapped[str] = mapped_column(CHAR(16), unique=True, nullable=False)
-    link: Mapped[str] = mapped_column(VARCHAR(255), unique=True, nullable=False)
+    link_hash: Mapped[str] = mapped_column(CHAR(32), unique=True, nullable=False)
+    link: Mapped[str] = mapped_column(VARCHAR(255), unique=True, index=True, nullable=False)
     headline: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
     date: Mapped[date] = mapped_column(DATE, nullable=False)
 
@@ -53,11 +54,11 @@ class Article(Base, TimestampMixin):
     key_insights: Mapped[list["KeyInsight"]] = relationship(back_populates="article", cascade="all, delete-orphan")
 
 
-class Embedding(Base, TimestampMixin, AutoEmbeddingMixin):
+class Embedding(Base, utils.TimestampMixin):
     __tablename__ = "embeddings"
 
     embedding_id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    summarization: Mapped[str] = mapped_column(VARCHAR(1000), nullable=False)
+    summarization: Mapped[str] = mapped_column(TEXT, nullable=False)
 
     article_id: Mapped[int] = mapped_column(
         BIGINT,
@@ -70,12 +71,29 @@ class Embedding(Base, TimestampMixin, AutoEmbeddingMixin):
     )
     article: Mapped[Article] = relationship(back_populates="embedding")
 
+    embedding: Mapped[list[float]] = mapped_column(VECTOR(1536))
+
+    # --- The pgvector index is defined here ---
+    __table_args__ = (
+        Index(
+            'ix_embeddings_embedding_hnsw',  # Name of your index (must be unique)
+            embedding,  # The column to index
+            postgresql_using='hnsw',  # Specify HNSW index type
+            postgresql_ops={'embedding': 'vector_cosine_ops'},  # Operator class for cosine distance
+            postgresql_with={'m': 16, 'ef_construction': 64},  # HNSW specific parameters
+        ),
+    )
+
+    # Define which columns should be used for embedding
     @property
-    def embedding_column(self):
-        return 'summarization'
+    def embedding_column(self) -> str:
+        return "summarization"
+
+    def get_text_for_embedding(self) -> str:
+        return getattr(self, self.embedding_column)
 
 
-class Tag(Base, TimestampMixin):
+class Tag(Base, utils.TimestampMixin):
     __tablename__ = "tags"
 
     tag_id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
@@ -96,14 +114,14 @@ class Tag(Base, TimestampMixin):
     )
 
 
-class KeyInsight(Base, TimestampMixin):
+class KeyInsight(Base, utils.TimestampMixin):
     __tablename__ = "key_insights"
     __table_args__ = (
         UniqueConstraint('key_insight', 'article_id'),
     )
 
     key_insight_id: Mapped[int] = mapped_column(BIGINT, primary_key=True)
-    key_insight: Mapped[str] = mapped_column(VARCHAR(255), nullable=False)
+    key_insight: Mapped[str] = mapped_column(VARCHAR(1000), nullable=False)
     article_id: Mapped[int] = mapped_column(
         BIGINT,
         ForeignKey(
@@ -122,7 +140,7 @@ class KeyInsight(Base, TimestampMixin):
 @event.listens_for(Session, 'before_flush')
 def generate_embeddings_before_flush(session, flush_context, instances):
     for obj in session.new | session.dirty:
-        if isinstance(obj, AutoEmbeddingMixin):
+        if isinstance(obj, Embedding):
             # Check if the embedding source column was modified
             modified = False
             if obj in session.new:
@@ -133,4 +151,4 @@ def generate_embeddings_before_flush(session, flush_context, instances):
 
             if modified:
                 text = obj.get_text_for_embedding()
-                obj.embedding = generate_embedding(text)
+                obj.embedding = utils.generate_embedding(text)
