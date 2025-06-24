@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 from app.config import config
 from app.services.database import databasemanager
-# from app.routers_v1 import router_v1
+from app.routers.search_articles import search_articles_router
 
 
 def init_app(init_db=True):
@@ -19,7 +19,7 @@ def init_app(init_db=True):
                 await databasemanager.close()
 
     server = FastAPI(title="FastAPI test server", lifespan=lifespan)
-    # server.include_router(router_v1, prefix="/v1", tags=["v1"])
+    server.include_router(search_articles_router)
 
     return server
 
