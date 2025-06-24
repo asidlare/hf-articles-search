@@ -92,3 +92,13 @@ async def test_get_article_by_link_hash(
     # empty link hash
     result = client.get("/get-article-by-link-hash?link_hash=")
     assert result.status_code == 400
+
+
+async def test_make_hashed_link(
+    client,
+    science_category_extended_data
+):
+    for row in science_category_extended_data:
+        result = client.post("/make-hashed-link", json={"link": row["link"]})
+        assert result.status_code == 200
+        assert result.json()["link_hash"] == row["link_hash"]

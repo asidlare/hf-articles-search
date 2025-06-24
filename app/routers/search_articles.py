@@ -6,7 +6,8 @@ from typing import Annotated
 
 from app.api.search_articles import get_articles_by_tag_names, get_articles_by_link_hash
 from app.services.database import get_db_session, get_db_engine
-from app.schemas.search_articles import ArticleResponse, TagSearchResponse
+from app.schemas.search_articles import ArticleResponse, TagSearchResponse, Link, LinkResponse
+from app.transformations.scrapper import make_hashed_url
 
 
 search_articles_router = APIRouter()
@@ -85,3 +86,26 @@ async def get_article_by_link_hash(
             status_code=status.HTTP_404_NOT_FOUND
         )
     return ArticleResponse(**results)
+
+
+@search_articles_router.post(
+    "/make-hashed-link",
+    status_code=status.HTTP_200_OK,
+    response_model=LinkResponse,
+    operation_id="make_hashed_link",
+)
+async def make_hashed_link(link: Link):
+    """
+    Creates a hashed version of the provided link using the specified hashing function.
+    This function expects a Link object as input and returns a response containing
+    the original link and its hashed value.
+
+    :param link: The link object containing the URL to be hashed
+    :type link: Link
+    :return: A response object containing the original link and its hashed equivalent
+    :rtype: LinkResponse
+    """
+    return LinkResponse(**{
+        "link": link.link,
+        "link_hash": make_hashed_url(str(link.link))
+    })

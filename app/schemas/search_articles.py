@@ -55,3 +55,29 @@ class TagSearchResponse(BaseModel):
     articles found during the search operation.
     """
     articles: list[ExtendedArticleResponse] = Field(..., description="A list of articles found for specified tag names")
+
+
+class Link(BaseModel):
+    """
+    Represents a hyperlink pointing to an article.
+
+    This class is a model for storing a valid HTTP URL linking to an article.
+    It ensures that the provided URL adheres to the expected format of an HTTP
+    or HTTPS URL. The model is intended to provide structured validation and
+    simplification of working with article links, ensuring correctness and
+    consistency.
+    """
+    link: HttpUrl = Field(..., description="URL to the article")
+
+
+class LinkResponse(Link):
+    """
+    Represents a response model for a Link.
+
+    This class extends the Link class and adds an additional attribute
+    `link_hash` which represents the hash of the article URL link. It is
+    specifically tailored to include more details about a link within a
+    certain context, such as when dealing with URL processing or API
+    responses.
+    """
+    link_hash: str = Field(..., description="Hash of the article URL link")
