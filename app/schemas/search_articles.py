@@ -12,13 +12,13 @@ class ArticleResponse(BaseModel):
     key insights derived from the article, and related tag names. Each attribute
     offers specific metadata to comprehensively define the article and its context.
     """
-    link: HttpUrl = Field(..., description="URL to the article")
-    link_hash: str = Field(..., description="Hash of the article URL link")
-    headline: str = Field(..., description="Headline of the article")
-    published_date: date = Field(..., description="Published date of the article")
-    summarization: str = Field(..., description="Summarization of the article")
-    key_insights: list[str] = Field(..., description="Key insights of the article")
-    tag_names: list[str] = Field(..., description="Tag names defined for the article")
+    link: HttpUrl = Field(description="URL to the article")
+    link_hash: str = Field(description="Hash of the article URL link")
+    headline: str = Field(description="Headline of the article")
+    published_date: date = Field(description="Published date of the article")
+    summarization: str = Field(description="Summarization of the article")
+    key_insights: list[str] = Field(description="Key insights of the article")
+    tag_names: list[str] = Field(description="Tag names defined for the article")
 
 
 class ExtendedArticleResponse(BaseModel):
@@ -31,19 +31,19 @@ class ExtendedArticleResponse(BaseModel):
     a structured format that includes both general article information and its relationships
     to semantic tags and embedding-based calculations.
     """
-    article_position_id: int = Field(..., description="A position id for the article")
-    link: HttpUrl = Field(..., description="URL to the article")
-    link_hash: str = Field(..., description="Hash of the article URL link")
-    headline: str = Field(..., description="Headline of the article")
-    published_date: date = Field(..., description="Published date of the article")
-    summarization: str = Field(..., description="Summarization of the article")
-    key_insights: list[str] = Field(..., description="Key insights of the article")
+    article_position_id: int = Field(description="A position id for the article")
+    link: HttpUrl = Field(description="URL to the article")
+    link_hash: str = Field(description="Hash of the article URL link")
+    headline: str = Field(description="Headline of the article")
+    published_date: date = Field(description="Published date of the article")
+    summarization: str = Field(description="Summarization of the article")
+    key_insights: list[str] = Field(description="Key insights of the article")
     tag_names: Optional[list[str]] = Field(default=None, description="Tag names defined for the article")
     embedding_position_id: Optional[int] = Field(
         default=None,
         description="A position id based on semantic search based on tag names"
     )
-    distance: float = Field(..., description="Cosine distance between the article and the tags embedding")
+    distance: float = Field(description="Cosine distance between the article and the tags embedding")
 
 
 class TagSearchResponse(BaseModel):
@@ -54,7 +54,7 @@ class TagSearchResponse(BaseModel):
     articles associated with specific tag names. It includes details about the
     articles found during the search operation.
     """
-    articles: list[ExtendedArticleResponse] = Field(..., description="A list of articles found for specified tag names")
+    articles: list[ExtendedArticleResponse] = Field(description="A list of articles found for specified tag names")
 
 
 class Link(BaseModel):
@@ -67,7 +67,7 @@ class Link(BaseModel):
     simplification of working with article links, ensuring correctness and
     consistency.
     """
-    link: HttpUrl = Field(..., description="URL to the article")
+    link: HttpUrl = Field(description="URL to the article")
 
 
 class LinkResponse(Link):
@@ -80,4 +80,4 @@ class LinkResponse(Link):
     certain context, such as when dealing with URL processing or API
     responses.
     """
-    link_hash: str = Field(..., description="Hash of the article URL link")
+    link_hash: str = Field(description="Hash of the article URL link")
