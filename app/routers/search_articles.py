@@ -23,7 +23,7 @@ async def search_articles_by_tag_names(
     db_engine: Annotated[AsyncEngine, Depends(get_db_engine)],
     tag_names: str = Query(..., description="A comma-separated list of tag names to search for."),
     limit: int = Query(10, description="The limit applied separately to results fetched by tags and by cosine distance")
-):
+) -> TagSearchResponse:
     """
     Handles the endpoint for searching articles by tag names. The function takes a
     list of tags to search for and a limit to restrict the number of results for
@@ -45,7 +45,7 @@ async def search_articles_by_tag_names(
             content={"message": "Bad request: tag_names is required"},
             status_code=status.HTTP_400_BAD_REQUEST
         )
-    results = await get_articles_by_tag_names(db_engine, tag_names)
+    results = await get_articles_by_tag_names(db_engine, tag_names, limit=limit)
     return TagSearchResponse(articles=results)
 
 
@@ -58,7 +58,7 @@ async def search_articles_by_tag_names(
 async def get_article_by_link_hash(
     db_session: Annotated[AsyncSession, Depends(get_db_session)],
     link_hash: str = Query(..., description="An url link hash to search for.")
-):
+) -> ArticleResponse:
     """
     Retrieve an article by its link hash.
 
@@ -94,7 +94,7 @@ async def get_article_by_link_hash(
     response_model=LinkResponse,
     operation_id="make_hashed_link",
 )
-async def make_hashed_link(link: Link):
+async def make_hashed_link(link: Link) -> LinkResponse:
     """
     Creates a hashed version of the provided link using the specified hashing function.
     This function expects a Link object as input and returns a response containing

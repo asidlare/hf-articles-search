@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling", "tomli"]
+build-backend = "hatchling.build"
+
 [project]
 name = "hf-articles-search"
 version = "0.1.0"
@@ -5,18 +9,21 @@ description = ""
 authors = [
     { name = "Anna Sidlarewicz", email = "asidlare@gmail.com" }
 ]
-requires-python = ">=3.13.5"
+requires-python = ">=3.12.11"
 dependencies = [
     "more-itertools",
     "sqlalchemy[asyncio]",
     "pgvector",
     "uvicorn[standard]",
     "fastapi[all]",
+    "mcp[cli]",
+    "crewai-tools[mcp]",
     "fastapi-mcp",
     "pydantic",
     "asyncpg",
     "alembic",
     "aiohttp",
+    "httpx",
     "beautifulsoup4",
     "openai",
     "numpy",
@@ -34,13 +41,8 @@ dev = [
     "pytest-mock",
     "pytest-postgresql",
     "psycopg[binary]",
-    "httpx",
     "sentence-transformers",
 ]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["app"]

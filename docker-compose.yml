@@ -19,13 +19,15 @@ services:
       timeout: 5s
       retries: 5 # Number of retries before marking as unhealthy
 
-  mcp:
+  mcp-backend:
     build:
       context: .
       dockerfile: ./Dockerfile
     container_name: hf-search-mcp
     # command: tail -f /dev/null
     command: uvicorn app.main:my_app --host 0.0.0.0 --port 8000 --reload
+    # command: python app/main.py
+    # command: uv run app/main.py
     volumes:
       - .:/code
     ports:
