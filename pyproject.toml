@@ -28,6 +28,7 @@ dependencies = [
     "openai",
     "numpy",
     "pandas",
+    "logfire",
 ]
 
 [project.optional-dependencies]

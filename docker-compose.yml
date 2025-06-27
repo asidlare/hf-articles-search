@@ -37,6 +37,7 @@ services:
       - POSTGRES_NAME=hf_articles
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - LOGFIRE_SEND_TO_LOGFIRE=false
     depends_on:
       db:
         condition: service_healthy # Wait until the DB's healthcheck passes

@@ -1,7 +1,7 @@
-import httpx
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi_mcp import FastApiMCP
+import logfire
 
 from app.config import config
 from app.services.database import databasemanager
@@ -28,6 +28,14 @@ def init_app(init_db=True):
 my_app = init_app()
 
 
+# configure logfire
+logfire.configure(
+    service_name="fastapi-mcp-server",
+    send_to_logfire='if-token-present',
+)
+logfire.instrument_fastapi(my_app)
+
+
 # Initialize FastAPI-MCP
 included_operations = [
     "search_articles_by_tag_names",
@@ -36,7 +44,6 @@ included_operations = [
 ]
 mcp_serv = FastApiMCP(
     my_app,
-    http_client=httpx.AsyncClient(timeout=60),
     name="API for searching articles from science category from Huffington Post",
     description="""
         MCP server for searching articles from science category from Huffington Post.
