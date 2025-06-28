@@ -7,7 +7,7 @@ includes information about articles from Huffington Post for my analysis.
 
 ## Kaggle `News Category Dataset`
 
-You can find `News Category Datase` [here](https://www.kaggle.com/datasets/rmisra/news-category-dataset/data)
+You can find `News Category Dataset` [here](https://www.kaggle.com/datasets/rmisra/news-category-dataset/data)
 
 If you'd like to learn more about this dataset and its author, check:
 1. Misra, Rishabh. "News Category Dataset." arXiv preprint arXiv:2209.11429 (2022).
